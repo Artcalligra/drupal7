@@ -1,0 +1,5 @@
+name = TestBlock
+description = "Модуль для создания тестового блока"
+core = 7.x
+
+

@@ -1,0 +1,158 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function request_menu() {
+  $items = array();
+
+  $items['dt_request_form'] = array( 
+    'title' => 'Get Started', //page title
+    'description' => 'A form to mess around with.',
+    'page callback' => 'drupal_get_form', //this is the function that will be called when the page is accessed.  for a form, use drupal_get_form
+    'page arguments' => array('request_form'),
+    'access arguments' => array('administer request module'),
+    'menu_name' => 'main-menu',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ */
+function request_form($form, &$form_state) {
+  global $user;
+  $form['field1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your Name'),
+    '#maxlength' => 127,
+    '#default_value' => $user->name,
+    '#description' => t('Please enter your name'),
+    '#required' => TRUE,
+  );
+
+  $form['field2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your organization'),
+    '#maxlength' => 127,
+    '#description' => t('Please enter your Organization name'),
+  );
+
+  $form['selectbox'] = array(
+    '#type' => 'select',
+    '#title' => t('Count of employees'),
+    '#options' => array(
+      1 => '10',
+      2 => '20',
+      3 => '>20',
+    ),
+  );
+
+  $form['field3'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your City'),
+    '#maxlength' => 127,
+    '#description' => t('Please enter your City'),
+  );
+
+  $form['advanced'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Contact Information'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+
+  $form['advanced']['phone'] = array(
+    '#title'    => t('Phone'),
+    '#type'     => 'textfield',
+    '#required' => TRUE,
+    '#size' => 13,
+    '#element_validate' => array('element_validate_number'), 
+    '#description' => t('Please enter your Phone number'),
+  );
+
+  $form['advanced']['email'] = array(
+    '#title'    => t('E-mail'),
+    '#type'     => 'textfield',
+    //'#required' => TRUE,
+    '#default_value' => $user->mail,
+    '#description' => t('Please enter your e-mail'),
+  );
+  
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+
+  return $form;
+}
+
+/** 
+ * Implements hook_form_validate().
+ */
+function request_form_validate($form, &$form_state) {
+  if(drupal_strlen($form_state['values']['field1']) < 3) {
+    form_set_error('field1', t('Name must be at least 3 characters'));
+  }
+
+  if (!valid_email_address($form_state['values']['email'])) {
+  form_set_error('email', t('Please use a valid email address.'));
+  }
+  
+}
+
+/** 
+ * Implements hook_submit().
+ */
+function request_form_submit($form, &$form_state) {
+  global $user;
+  $message = array(
+    '#1' => $form_state['values']['field1'],
+    '#2' => $form_state['values']['field2'],
+  );
+ $params = array(
+           'body' => $message,
+           'subject' => 'Website Information Request',
+           'headers'=>'simple',
+     );
+     $to = $user->mail;
+     $from=$form_state['values']['email'];
+     var_dump($form_state['values']['email']);
+     var_dump($message);
+    if(drupal_mail('requestform', 'send_link', $to, language_default(), $params, $from, TRUE)){
+  drupal_set_message('Thank you! We will contact you soon.');}
+  else{
+    drupal_set_message('Error.');
+  }
+
+}
+/** 
+ * Implements hook_mail().
+ */
+function request_mail($key,&$message,$params) 
+{
+
+       switch ($key) {
+             case 'send_link':
+                  $message['subject']=t($params['subject']);
+                  $message['body'][]=$params['body'];
+                  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+       break;
+          }
+ }
+
+/** 
+ * Implements hook_permission().
+ */
+ function request_permission() {
+  return array(
+    'administer request module' => array(
+      'title' => t('Administer request module'),
+      'description' => t('Perform administration tasks for request module.'),
+    ),
+  );
+}

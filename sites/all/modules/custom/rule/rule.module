@@ -1,0 +1,72 @@
+<?php
+/**
+ * Implementation of hook_rules_event_info().
+ */
+/*function rule_rules_event_info() {
+  $items = array(
+    'newsletter_register_email' => array(
+      'label' => t('An event to trigger when an user is subscribed to newsletters.'),
+      'group' => t('User'),
+      'variables' => array(
+        'account' => array(
+          'type' => 'user',
+          'label' => t('updated user'),
+        ),
+      ),
+    ),
+  );
+  return $items;
+}*/
+
+/**
+ * Implements hook_node_insert().
+ */
+/*function rule_node_insert($node) {
+ //gloal $node;
+  if ($node->type == 'Review') {
+    drupal_set_message('Yes');
+  }
+}*/
+
+
+/*
+* Implements hook_node_insert()
+*
+* Act on a node being inserted.
+*
+*presave
+* @param $node
+* The node that is being inserted.
+*/
+
+function rule_node_insert($node) {
+  global $user;
+  if ($node->type =='review' && $node->is_new) {
+   // drupal_set_message("Thanks for creating a Review, your node id is " . $node->nid);
+    $num = og_get_groups_by_user();
+    $number_group=$node->field_company['und'][0]['target_id'];
+    //drupal_set_message('<pre>'.print_r($num, true).'<pre>');
+    //drupal_set_message('<pre>'.print_r($number_group, true).'<pre>');
+
+    $isok = false;
+    foreach ($num['node'] as $key => $value) {
+      if ($value==$number_group){        
+        $isok=true;
+      }
+      //drupal_set_message('<pre>'.print_r($, true).'<pre>');
+     // drupal_set_message('<pre>'.print_r($node, true).'<pre>'); 
+     // $output = field_view_field('node', $node, 'field_company');   
+     // drupal_set_message('<pre>'.print_r($output, true).'<pre>');
+      //$output = field_view_value('node', $node, 'field_company', $field[0]);
+     //drupal_set_message('<pre>'.print_r($output, true).'<pre>');
+      
+    }
+    if ($isok){
+      drupal_set_message("Yes");
+    }else{
+      drupal_set_message("No");
+    }
+    //drupal_set_message("user: ".$user->uid);
+
+  }
+}

@@ -1,0 +1,47 @@
+<?php
+/**
+ * Implements hook_block_info().
+ */
+function owners_block_info() {
+  $blocks['owners'] = array(
+    // The name that will appear in the block list.
+    'info' => t('Owners details'),
+    // Default setting.
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+    'region' => 'sidebar_first',
+  );
+
+  return $blocks;
+}
+/**
+ * Implements hook_block_view().
+ */
+
+function owners_block_view($delta = '') {
+  global $user;
+  global $node;
+  $group='';
+  $products='';
+  $block = array();
+  $num = og_get_groups_by_user();
+  
+  foreach ($num['node'] as &$val) {
+  $title=node_load($val)->title;
+  $node_link=l(' edit', "/node/$val/edit").'<br>';
+  $group.=$title.$node_link;
+  $count = db_query("SELECT COUNT(*) FROM og_membership WHERE gid=$val AND entity_type='node'")->fetchField();;
+  //$title = db_query("SELECT COUNT(*) FROM og_membership WHERE gid=%d AND entity_type='%s'", $val, 'node');
+  //$num_rows = mysqli_num_rows($count);
+  $see_link=l(' see', "/node/$val"); 
+  $products.=$count.$see_link.', ';
+  }
+  $products=substr($products, 0, -2);
+  switch ($delta) {
+    case 'owners':
+      $block['subject'] = t('owners details');
+      $block['content'] = t('Your name: ') .$user->name. l(' edit', "/user/$user->uid/edit").'<br>'.t('Organizaton: ').$group.'<br>'.t('Count products: ').$products;        
+      break;
+  }
+  return $block;
+}
+
