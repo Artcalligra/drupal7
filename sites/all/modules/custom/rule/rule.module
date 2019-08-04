@@ -48,10 +48,10 @@ function rule_node_insert($node) {
     //drupal_set_message('<pre>'.print_r($num, true).'<pre>');
     //drupal_set_message('<pre>'.print_r($number_group, true).'<pre>');
 
-    $ismycompany = false;
+    $ismember = false;
     foreach ($num['node'] as $key => $value) {
       if ($value==$number_group){        
-        $ismycompany=true;
+        $ismember=true;
       }
       //drupal_set_message('<pre>'.print_r($, true).'<pre>');
      // drupal_set_message('<pre>'.print_r($node, true).'<pre>'); 
@@ -61,7 +61,7 @@ function rule_node_insert($node) {
      //drupal_set_message('<pre>'.print_r($output, true).'<pre>');
       
     }
-    if ($ismycompany){
+    if ($ismember){
       drupal_set_message("Yes");
     }else{
       drupal_set_message("No");
