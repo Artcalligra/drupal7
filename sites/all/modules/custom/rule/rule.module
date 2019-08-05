@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Implementation of hook_rules_event_info().
  */
@@ -30,7 +31,7 @@
 
 
 /*
-* Implements hook_node_insert()
+* Implements hook_node_presave()
 *
 * Act on a node being inserted.
 *
@@ -39,32 +40,46 @@
 * The node that is being inserted.
 */
 
-function rule_node_insert($node) {
+function rule_node_presave($node)
+{
   global $user;
-  if ($node->type =='review' && $node->is_new) {
-   // drupal_set_message("Thanks for creating a Review, your node id is " . $node->nid);
+
+  if ($node->type == 'review' && $node->is_new) {
+    // drupal_set_message("Thanks for creating a Review, your node id is " . $node->nid);
     $num = og_get_groups_by_user();
-    $number_group=$node->field_company['und'][0]['target_id'];
+    $number_group = $node->field_company['und'][0]['target_id'];
     //drupal_set_message('<pre>'.print_r($num, true).'<pre>');
     //drupal_set_message('<pre>'.print_r($number_group, true).'<pre>');
+    //drupal_set_message('<pre>'.print_r($node, true).'<pre>');
+
 
     $ismember = false;
     foreach ($num['node'] as $key => $value) {
-      if ($value==$number_group){        
-        $ismember=true;
+      if ($value == $number_group) {
+        $ismember = true;
       }
-      //drupal_set_message('<pre>'.print_r($, true).'<pre>');
-     // drupal_set_message('<pre>'.print_r($node, true).'<pre>'); 
-     // $output = field_view_field('node', $node, 'field_company');   
-     // drupal_set_message('<pre>'.print_r($output, true).'<pre>');
-      //$output = field_view_value('node', $node, 'field_company', $field[0]);
-     //drupal_set_message('<pre>'.print_r($output, true).'<pre>');
-      
     }
-    if ($ismember){
-      drupal_set_message("Yes");
-    }else{
-      drupal_set_message("No");
+    if ($ismember) {
+      $node->status = 0;
+      drupal_set_message(t("Sorry, but you can't add your company for review."), 'error');
+    } else {
+      $node->status = 1;
+      //$form_state['redirect'] = "node/$number_group";
+      drupal_set_message(t("Thank you for your feedback!"), 'status');
+      $array = array(
+        'context' => array(
+          'subject' => 'Some subject',
+          'message' => 'Some message',
+        )
+        );
+      if (drupal_mail('system', 'mail', $user->mail, language_default(), $array)){
+        drupal_set_message("ok");
+        else {
+          drupal_set_message("no");
+        }
+      }
+      }
+      drupal_goto("node/$number_group");
     }
     //drupal_set_message("user: ".$user->uid);
 
