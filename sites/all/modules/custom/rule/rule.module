@@ -31,7 +31,7 @@
 
 
 /*
-* Implements hook_node_presave()
+* Implements hook_node_insert()
 *
 * Act on a node being inserted.
 *
@@ -65,23 +65,21 @@ function rule_node_presave($node)
     } else {
       $node->status = 1;
       //$form_state['redirect'] = "node/$number_group";
-      drupal_set_message(t("Thank you for your feedback!"), 'status');
+      //drupal_set_message(t("Thank you for your feedback!"), 'status');
       $array = array(
         'context' => array(
-          'subject' => 'Some subject',
-          'message' => 'Some message',
+          'subject' => 'Add review',
+          'message' => 'l(node/$number_group)',
         )
         );
       if (drupal_mail('system', 'mail', $user->mail, language_default(), $array)){
-        drupal_set_message("ok");
+        drupal_set_message(t("Thank you for your feedback!"), 'status');}
         else {
-          drupal_set_message("no");
+          drupal_set_message("error");
         }
-      }
-      }
-      drupal_goto("node/$number_group");
-    }
-    //drupal_set_message("user: ".$user->uid);
-
-  }
+      //drupal_goto("node/$number_group");
+      }      
+       
+    }    
 }
+   
