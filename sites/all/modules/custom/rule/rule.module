@@ -1,45 +1,5 @@
 <?php
 
-/**
- * Implementation of hook_rules_event_info().
- */
-/*function rule_rules_event_info() {
-  $items = array(
-    'newsletter_register_email' => array(
-      'label' => t('An event to trigger when an user is subscribed to newsletters.'),
-      'group' => t('User'),
-      'variables' => array(
-        'account' => array(
-          'type' => 'user',
-          'label' => t('updated user'),
-        ),
-      ),
-    ),
-  );
-  return $items;
-}*/
-
-/**
- * Implements hook_node_insert().
- */
-/*function rule_node_insert($node) {
- //gloal $node;
-  if ($node->type == 'Review') {
-    drupal_set_message('Yes');
-  }
-}*/
-
-
-/*
-* Implements hook_node_insert()
-*
-* Act on a node being inserted.
-*
-*presave
-* @param $node
-* The node that is being inserted.
-*/
-
 function rule_node_presave($node)
 {
   global $user;

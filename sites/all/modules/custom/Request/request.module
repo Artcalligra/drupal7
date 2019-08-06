@@ -1,11 +1,13 @@
 <?php
+
 /**
  * Implements hook_menu().
  */
-function request_menu() {
+function request_menu()
+{
   $items = array();
 
-  $items['dt_request_form'] = array( 
+  $items['dt_request_form'] = array(
     'title' => 'Get Started', //page title
     'description' => 'A form to mess around with.',
     'page callback' => 'drupal_get_form', //this is the function that will be called when the page is accessed.  for a form, use drupal_get_form
@@ -21,7 +23,8 @@ function request_menu() {
 /**
  * Implements hook_form().
  */
-function request_form($form, &$form_state) {
+function request_form($form, &$form_state)
+{
   global $user;
   $form['field1'] = array(
     '#type' => 'textfield',
@@ -43,9 +46,9 @@ function request_form($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Count of employees'),
     '#options' => array(
-      1 => '10',
-      2 => '20',
-      3 => '>20',
+      '10' => '10',
+      '20' => '20',
+      '>20' => '>20',
     ),
   );
 
@@ -69,7 +72,7 @@ function request_form($form, &$form_state) {
     '#type'     => 'textfield',
     '#required' => TRUE,
     '#size' => 13,
-    '#element_validate' => array('element_validate_number'), 
+    '#element_validate' => array('element_validate_number'),
     '#description' => t('Please enter your Phone number'),
   );
 
@@ -80,7 +83,7 @@ function request_form($form, &$form_state) {
     '#default_value' => $user->mail,
     '#description' => t('Please enter your e-mail'),
   );
-  
+
 
   $form['submit_button'] = array(
     '#type' => 'submit',
@@ -94,65 +97,126 @@ function request_form($form, &$form_state) {
 /** 
  * Implements hook_form_validate().
  */
-function request_form_validate($form, &$form_state) {
-  if(drupal_strlen($form_state['values']['field1']) < 3) {
+function request_form_validate($form, &$form_state)
+{
+  if (drupal_strlen($form_state['values']['field1']) < 3) {
     form_set_error('field1', t('Name must be at least 3 characters'));
   }
 
   if (!valid_email_address($form_state['values']['email'])) {
-  form_set_error('email', t('Please use a valid email address.'));
+    form_set_error('email', t('Please use a valid email address.'));
   }
-  
 }
+
+function my_create_a_node($form, &$form_state) {
+  global $user;
+  $values = array(
+    'type' => 'rf_submissions',
+    'uid' => $user->uid,
+    'status' => 1,
+    'comment' => 1,
+    'promote' => 0,
+  );
+  $entity = entity_create('node', $values);
+  $ewrapper = entity_metadata_wrapper('node', $entity);
+  $ewrapper->title->set('submissions');
+ 
+  $my_name = $form_state['values']['field1'];
+  $my_organization = $form_state['values']['field2'];
+  $my_count = $form_state['values']['selectbox'];
+  $my_city = $form_state['values']['field3'];
+  $my_phone = $form_state['values']['phone'];
+  $my_mail = $form_state['values']['email'];
+  $ewrapper->field_name->set($my_name);
+  $ewrapper->field_organization->set($form_state['values']['field2']);
+  $ewrapper->field_count_of_employees->set($form_state['values']['selectbox']);
+  $ewrapper->field_city->set($form_state['values']['field3']);
+  $ewrapper->field_phone->set($form_state['values']['phone']);
+  $ewrapper->field_e_mail->set($form_state['values']['email']);
+  //$ewrapper->body->set(array('value' => $my_name,'value' => $my_organization,'value' => $my_count,'value' => $my_city,'value' => $my_phone,'value' => $my_mail));
+  //$ewrapper->body->summary->set('Things that interest me');
+ 
+  $my_date = new DateTime('January 1, 2013');
+  $entity->field_my_date[LANGUAGE_NONE][0] = array(
+     'value' => date_format($my_date, 'Y-m-d'),
+     'timezone' => 'UTC',
+     'timezone_db' => 'UTC',
+   );
+ 
+  $ewrapper->save();
+}
+
+
 
 /** 
  * Implements hook_submit().
  */
-function request_form_submit($form, &$form_state) {
+function request_form_submit($form, &$form_state)
+{
   global $user;
   $message = array(
     '#1' => $form_state['values']['field1'],
     '#2' => $form_state['values']['field2'],
   );
- $params = array(
-           'body' => $message,
-           'subject' => 'Website Information Request',
-           'headers'=>'simple',
-     );
-     $to = $user->mail;
-     $from=$form_state['values']['email'];
-     var_dump($form_state['values']['email']);
-     var_dump($message);
-    if(drupal_mail('requestform', 'send_link', $to, language_default(), $params, $from, TRUE)){
-  drupal_set_message('Thank you! We will contact you soon.');}
-  else{
+  $params = array(
+    'body' => $message,
+    'subject' => 'Website Information Request',
+    'headers' => 'simple',
+  );
+  $to = $user->mail;
+  $from = $form_state['values']['email'];
+  //var_dump($form_state['values']['email']);
+  //var_dump($message);
+  if (drupal_mail('requestform', 'send_link', $to, language_default(), $params, $from, TRUE)) {
+    drupal_set_message('Thank you! We will contact you soon.');
+  } else {
     drupal_set_message('Error.');
   }
-
+  my_create_a_node($form, $form_state);
+ 
 }
 /** 
  * Implements hook_mail().
  */
-function request_mail($key,&$message,$params) 
+function request_mail($key, &$message, $params)
 {
 
-       switch ($key) {
-             case 'send_link':
-                  $message['subject']=t($params['subject']);
-                  $message['body'][]=$params['body'];
-                  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
-       break;
-          }
- }
+  switch ($key) {
+    case 'send_link':
+      $message['subject'] = t($params['subject']);
+      $message['body'][] = $params['body'];
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+      break;
+  }
+}
 
 /** 
  * Implements hook_permission().
  */
- function request_permission() {
+function request_permission()
+{
   return array(
     'administer request module' => array(
-      'title' => t('Administer request module'),
+      'title' => t('my Administer request module'),
       'description' => t('Perform administration tasks for request module.'),
     ),
   );
 }
+
+/**
+ * Implements hook_node_info()
+ */
+/*function submissions_node_info() {
+  $items['submissions'] = array(
+    'name' => t('RF submissions'),    // name of your content type
+    'type' => 'request',
+    'base' => 'request',
+    'description' => t('A simple demonstration content type with a title and body.'),
+    'has_title' => TRUE,
+    'title_label' => t('Simple Title'),
+    'body_label' => t('Simple Description'),
+  );
+  
+  return $items;
+}*/
+
