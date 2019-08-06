@@ -1,0 +1,24 @@
+<?php
+function siteinfo_form_alter(&$form, $form_state, $form_id) {
+ if ($form_id == 'system_site_information_settings') {
+ 
+    
+    $form['site_information']['admin_mail_address'] = array(
+      '#title' => t('Admin E-mail address'),
+      '#type' => 'textfield',
+      '#default_value' => variable_get('global_admin_mail_address', ''),
+    );
+ 
+    $form['#submit'][] = 'siteinfo_system_site_information_settings_submit';
+  }
+}
+ 
+function siteinfo_system_site_information_settings_submit($form, $form_state){
+  $values = array(
+    'global_admin_mail_address' => $form_state['values']['admin_mail_address'],
+  );
+ 
+  foreach ($values as $key => $value) {
+    variable_set($key, $value);
+  }
+}

@@ -1,0 +1,3 @@
+name = Site Info
+description = Module for extra site info
+core = 7.x

@@ -121,13 +121,7 @@ function my_create_a_node($form, &$form_state) {
   $ewrapper = entity_metadata_wrapper('node', $entity);
   $ewrapper->title->set('submissions');
  
-  $my_name = $form_state['values']['field1'];
-  $my_organization = $form_state['values']['field2'];
-  $my_count = $form_state['values']['selectbox'];
-  $my_city = $form_state['values']['field3'];
-  $my_phone = $form_state['values']['phone'];
-  $my_mail = $form_state['values']['email'];
-  $ewrapper->field_name->set($my_name);
+  $ewrapper->field_name->set($form_state['values']['field1']);
   $ewrapper->field_organization->set($form_state['values']['field2']);
   $ewrapper->field_count_of_employees->set($form_state['values']['selectbox']);
   $ewrapper->field_city->set($form_state['values']['field3']);
