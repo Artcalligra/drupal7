@@ -198,19 +198,21 @@ function request_permission()
 }
 
 /**
- * Implements hook_node_info()
+ * Implements hook_theme()
+ * @return array
  */
-/*function submissions_node_info() {
-  $items['submissions'] = array(
-    'name' => t('RF submissions'),    // name of your content type
-    'type' => 'request',
-    'base' => 'request',
-    'description' => t('A simple demonstration content type with a title and body.'),
-    'has_title' => TRUE,
-    'title_label' => t('Simple Title'),
-    'body_label' => t('Simple Description'),
-  );
+function request_theme(){
+  $items = array();
   
+  $items['request_template'] = array(
+    'path' =>  drupal_get_path('module', 'request'),
+    'template' => 'request_template',
+    'variables' => array(
+      'account' => NULL,
+      'name' => '',
+      'mail' => '',
+    ),
+  );
   return $items;
-}*/
+}
 
