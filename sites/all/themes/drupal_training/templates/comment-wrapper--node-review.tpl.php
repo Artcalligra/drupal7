@@ -59,7 +59,7 @@
   $content['comment_form']['comment_body']['#title_display']='inline';
     print render($content['comment_form']);
     //dpm($content ['comment_form']['comment_body']['#children']);
-    dpm($content['comment_form']);
+    //dpm($content['comment_form']);
     //var_dump($content['comment_form']['author']['name']['#value']);
     //var_dump('e3333ee');
     

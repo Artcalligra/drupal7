@@ -17,6 +17,25 @@ function request_menu()
     'type' => MENU_CALLBACK,
   );
 
+  $items['admin/config/cf'] = array(
+    'title' => 'Request configuration',
+    'position' => 'left',
+    'weight' => -100,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+ 
+  $items['admin/config/cf/config_form'] = array(
+    'title' => 'request',
+    'description' => 'Description for request link',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cf_config_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'request.admin.inc',
+  );
+
   return $items;
 }
 
@@ -111,7 +130,7 @@ function request_form_validate($form, &$form_state)
 function my_create_a_node($form, &$form_state) {
   global $user;
   $values = array(
-    'type' => 'rf_submissions',
+    'type' =>variable_get('cf_node_types',''),
     'uid' => $user->uid,
     'status' => 1,
     'comment' => 1,
@@ -201,18 +220,45 @@ function request_permission()
  * Implements hook_theme()
  * @return array
  */
-function request_theme(){
-  $items = array();
-  
-  $items['request_template'] = array(
-    'path' =>  drupal_get_path('module', 'request'),
-    'template' => 'request_template',
-    'variables' => array(
-      'account' => NULL,
-      'name' => '',
-      'mail' => '',
+
+function request_theme() {
+  return array(
+    'request_form' => array( // id формы
+      'render element' => 'form', // указываем что элемент для отображения - форма
+      'template' => 'request_template', // имя шаблона custom_form_template.tpl.php
     ),
   );
-  return $items;
 }
 
+
+
+/**
+ * Implements hook_preprocess_HOOK()
+ *
+ * Render array examples attached to the main page content.
+ *
+ * @param $variables
+ */
+/*function reques_preprocess_page( &$variables )
+{
+    // default render array #type is markup which accepts any HTML in
+    // the #markup property
+    $variables['page']['content']['my_render_array1'] = array(
+        '#markup' => '<p>Arbitrary HTML goes here</p>',
+    );
+    // example render array type 'html_tag'
+    $variables['page']['content']['my_render_array2'] = array(
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#value' => 'Find Me',
+    );
+    // render array that uses a theme hook
+    // variables are passed to the function as #-prefixed properties
+    global $user;
+    $variables['page']['content']['my_render_array3'] = array(
+        '#theme' => 'reques_template',
+        '#account' => $user,
+        '#name' => format_username( $user ),
+        '#mail' => $user->mail,
+    );
+}*/
